@@ -24,10 +24,10 @@ export const BANNER_SIZE_HINT: Record<Height, string> = {
   tall:     "1920 × 800",
 };
 
-/* ─── Mobile aspect-ratio Tailwind classes ─── */
+/* ─── Mobile aspect-ratio Tailwind classes (Engineered for high conversion & visual engagement) ─── */
 const MOBILE_ASPECT_CLASS: Record<MobileAspect, string> = {
-  "16/7": "aspect-[2/1]",
-  "16/9": "aspect-[2/1]",
+  "16/7": "aspect-[16/8.5]",
+  "16/9": "aspect-[16/9]",
   "4/3":  "aspect-[4/3]",
   "1/1":  "aspect-square",
   "4/5":  "aspect-[4/5]",
@@ -128,8 +128,8 @@ export function HeroCarousel({
    * height is "auto" (driven by the image's natural height) so the wide banner is
    * never cropped. We still apply overflow-hidden + rounded corners.
    */
-  const frameClsWith    = cn("relative w-full overflow-hidden rounded-2xl md:rounded-3xl bg-neutral-100", phoneCls, desktopCls);
-  const frameClsWithout = cn("relative w-full overflow-hidden rounded-2xl md:rounded-3xl bg-neutral-100", phoneCls, desktopCls);
+  const frameClsWith    = cn("relative w-full overflow-hidden rounded-2xl md:rounded-3xl bg-neutral-100 shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-black/[0.04]", phoneCls, desktopCls);
+  const frameClsWithout = cn("relative w-full overflow-hidden rounded-2xl md:rounded-3xl bg-neutral-100 shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-black/[0.04]", phoneCls, desktopCls);
 
   if (count === 0) {
     return (
