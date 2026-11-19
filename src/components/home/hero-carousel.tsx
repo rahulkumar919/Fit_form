@@ -24,13 +24,13 @@ export const BANNER_SIZE_HINT: Record<Height, string> = {
   tall:     "1920 × 800",
 };
 
-/* ─── Mobile aspect-ratio Tailwind classes ─── */
+/* ─── Mobile aspect-ratio Tailwind classes (Floriwish proportions on mobile) ─── */
 const MOBILE_ASPECT_CLASS: Record<MobileAspect, string> = {
-  "16/7": "aspect-[16/7]",
-  "16/9": "aspect-video",
-  "4/3": "aspect-[4/3]",
-  "1/1": "aspect-square",
-  "4/5": "aspect-[4/5]",
+  "16/7": "aspect-[16/8.5] min-h-[175px]",
+  "16/9": "aspect-video min-h-[190px]",
+  "4/3":  "aspect-[4/3] min-h-[225px]",
+  "1/1":  "aspect-square min-h-[260px]",
+  "4/5":  "aspect-[4/5] min-h-[300px]",
 };
 
 /* ─── Reduced-motion hook ─── */
@@ -129,7 +129,7 @@ export function HeroCarousel({
    * never cropped. We still apply overflow-hidden + rounded corners.
    */
   const frameClsWith    = cn("relative w-full overflow-hidden rounded-2xl md:rounded-3xl bg-neutral-100", phoneCls, desktopCls);
-  const frameClsWithout = cn("relative w-full overflow-hidden rounded-2xl md:rounded-3xl bg-neutral-100", desktopCls);
+  const frameClsWithout = cn("relative w-full overflow-hidden rounded-2xl md:rounded-3xl bg-neutral-100", phoneCls, desktopCls);
 
   if (count === 0) {
     return (
@@ -285,34 +285,22 @@ function Slide({
     <picture className="absolute inset-0 h-full w-full">
       {/* Desktop: 768px and wider — wide banner image */}
       <source media="(min-width: 768px)" srcSet={b.image} width={1920} height={600} />
-      {/* Mobile: up to 767px — portrait/square mobile image */}
-      <source media="(max-width: 767px)" srcSet={b.mobileImage} width={1080} height={1350} />
+      {/* Mobile: up to 767px — mobile optimized banner */}
+      <source media="(max-width: 767px)" srcSet={b.mobileImage} width={1080} height={570} />
       <img
-        src={b.image}
+        src={b.mobileImage || b.image}
         alt={hasText ? "" : alt}
-        className="h-full w-full object-cover"
+        className="h-full w-full object-cover object-center"
         loading={eager ? "eager" : "lazy"}
         decoding="async"
         fetchPriority={eager ? "high" : "auto"}
       />
     </picture>
   ) : (
-    /*
-     * Single image — responsive on mobile, cover-fill on desktop.
-     * On mobile this is NOT absolutely positioned; it flows in the document
-     * so the frame height matches the image height (no cropping).
-     * At md+ the frame gains a fixed aspect ratio from desktopCls, and this
-     * element switches to absolute + object-cover to fill it.
-     */
     <img
       src={b.image}
       alt={hasText ? "" : alt}
-      className={cn(
-        // Mobile: block flow, full width, natural height — no cropping
-        "relative block w-full h-auto",
-        // Desktop: fill the fixed-aspect frame with object-cover
-        "md:absolute md:inset-0 md:h-full md:w-full md:object-cover",
-      )}
+      className="absolute inset-0 h-full w-full object-cover object-center"
       loading={eager ? "eager" : "lazy"}
       decoding="async"
       fetchPriority={eager ? "high" : "auto"}
@@ -324,7 +312,7 @@ function Slide({
   // Image-only banner (text baked into the artwork): the whole slide is the link.
   if (!hasText) {
     return b.ctaHref && !preview ? (
-      <Link href={b.ctaHref} aria-label={b.ctaLabel || alt} className="block">
+      <Link href={b.ctaHref} aria-label={b.ctaLabel || alt} className="block h-full w-full">
         {imageEl}
       </Link>
     ) : (
