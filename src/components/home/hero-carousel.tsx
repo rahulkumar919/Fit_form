@@ -24,13 +24,13 @@ export const BANNER_SIZE_HINT: Record<Height, string> = {
   tall:     "1920 × 800",
 };
 
-/* ─── Mobile aspect-ratio Tailwind classes (Floriwish proportions on mobile) ─── */
+/* ─── Mobile aspect-ratio Tailwind classes ─── */
 const MOBILE_ASPECT_CLASS: Record<MobileAspect, string> = {
-  "16/7": "aspect-[16/8.5] min-h-[175px]",
-  "16/9": "aspect-video min-h-[190px]",
-  "4/3":  "aspect-[4/3] min-h-[225px]",
-  "1/1":  "aspect-square min-h-[260px]",
-  "4/5":  "aspect-[4/5] min-h-[300px]",
+  "16/7": "aspect-[2/1]",
+  "16/9": "aspect-[2/1]",
+  "4/3":  "aspect-[4/3]",
+  "1/1":  "aspect-square",
+  "4/5":  "aspect-[4/5]",
 };
 
 /* ─── Reduced-motion hook ─── */
