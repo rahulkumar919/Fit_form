@@ -8,33 +8,47 @@ export interface FaqItem {
   answer: string;
 }
 
-function FaqAccordionItem({ faq }: { faq: FaqItem }) {
-  const [open, setOpen] = React.useState(false);
+interface AccordionItemProps {
+  faq: FaqItem;
+  isOpen: boolean;
+  onToggle: () => void;
+}
 
+function FaqAccordionItem({ faq, isOpen, onToggle }: AccordionItemProps) {
   return (
     <div className="border-b border-gray-100 last:border-b-0">
       <button
         type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        className="group flex w-full items-center justify-between gap-4 py-4 md:py-5 text-left cursor-pointer transition-colors"
-        aria-expanded={open}
+        onClick={onToggle}
+        className="group flex w-full items-center justify-between gap-3 py-3.5 sm:py-4 text-left cursor-pointer transition-colors"
+        aria-expanded={isOpen}
       >
-        <span className="text-[14px] md:text-[15px] font-semibold text-gray-800 group-hover:text-gray-950 leading-snug">
+        <span
+          className={`text-[14px] sm:text-[15px] font-semibold leading-snug transition-colors ${
+            isOpen ? "text-[#b85b6c]" : "text-gray-900 group-hover:text-gray-700"
+          }`}
+        >
           {faq.question}
         </span>
         <span
-          className={`shrink-0 grid size-7 place-items-center rounded-full border transition-all duration-200 ${
-            open
-              ? "rotate-45 border-rose-400 bg-rose-50 text-rose-500 shadow-sm"
-              : "border-gray-200 text-gray-400 group-hover:border-gray-300 group-hover:text-gray-600"
+          className={`shrink-0 grid size-6.5 sm:size-7 place-items-center rounded-full transition-all duration-200 ${
+            isOpen
+              ? "bg-[#b85b6c] text-white shadow-sm"
+              : "border border-gray-200 text-gray-400 group-hover:border-gray-300 group-hover:text-gray-600"
           }`}
           aria-hidden="true"
         >
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <svg
+            width="11"
+            height="11"
+            viewBox="0 0 12 12"
+            fill="none"
+            className={`transition-transform duration-200 ${isOpen ? "rotate-45" : ""}`}
+          >
             <path
               d="M6 1.5v9M1.5 6h9"
               stroke="currentColor"
-              strokeWidth="1.8"
+              strokeWidth={isOpen ? 2 : 1.8}
               strokeLinecap="round"
             />
           </svg>
@@ -43,11 +57,11 @@ function FaqAccordionItem({ faq }: { faq: FaqItem }) {
 
       <div
         className={`grid transition-all duration-300 ease-in-out ${
-          open ? "grid-rows-[1fr] opacity-100 mb-4" : "grid-rows-[0fr] opacity-0"
+          isOpen ? "grid-rows-[1fr] opacity-100 mb-3.5" : "grid-rows-[0fr] opacity-0"
         }`}
       >
         <div className="overflow-hidden">
-          <p className="text-[13px] md:text-sm text-gray-600 leading-relaxed pr-8">
+          <p className="text-[13px] sm:text-sm text-gray-600 leading-relaxed pr-6 sm:pr-8">
             {faq.answer}
           </p>
         </div>
@@ -65,7 +79,14 @@ export function FaqSection({
 }) {
   if (!faqs || faqs.length === 0) return null;
 
-  // Split items evenly into 2 columns for desktop
+  // First item open by default like Floriwish
+  const [openId, setOpenId] = React.useState<string | null>(faqs[0]?.id ?? null);
+
+  const toggle = (id: string) => {
+    setOpenId((prev) => (prev === id ? null : id));
+  };
+
+  // Split items into 2 columns for desktop view
   const half = Math.ceil(faqs.length / 2);
   const leftCol = faqs.slice(0, half);
   const rightCol = faqs.slice(half);
@@ -74,37 +95,51 @@ export function FaqSection({
     <section
       id="faq"
       aria-label="Frequently Asked Questions"
-      className={`w-full py-12 md:py-16 px-3 sm:px-6 lg:px-8 bg-[#f8f9fa] ${className}`}
+      className={`w-full bg-white px-4 sm:px-6 lg:px-8 py-5 sm:py-8 border-t border-gray-100 ${className}`}
     >
-      <div className="mx-auto max-w-6xl">
-        <div className="rounded-3xl border border-gray-200/70 bg-white p-6 sm:p-10 lg:p-14 shadow-sm">
-          {/* Header */}
-          <div className="flex flex-col items-center text-center">
-            <span className="mb-3.5 grid size-12 place-items-center rounded-2xl bg-rose-50 text-rose-500 ring-4 ring-rose-50/50">
-              <MessageCircleQuestion className="size-6 text-rose-500" strokeWidth={1.8} />
-            </span>
-            <h2 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+      <div className="mx-auto max-w-5xl">
+        {/* Header — Floriwish inline row format */}
+        <div className="flex items-center gap-3.5 mb-5 sm:mb-7">
+          <span className="grid size-11 sm:size-12 shrink-0 place-items-center rounded-2xl bg-[#feecef] text-[#b85b6c]">
+            <MessageCircleQuestion className="size-6 text-[#b85b6c]" strokeWidth={1.8} />
+          </span>
+          <div className="flex flex-col">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-gray-900 leading-tight">
               Frequently Asked Questions
             </h2>
-            <p className="mt-2 text-xs md:text-sm text-gray-500">
+            <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
               Everything you need to know about MelaMart
             </p>
           </div>
+        </div>
 
-          {/* 2-column Accordion Grid */}
-          <div className="mt-8 md:mt-12 grid grid-cols-1 md:grid-cols-2 gap-x-12 lg:gap-x-16">
-            <div className="flex flex-col">
-              {leftCol.map((faq) => (
-                <FaqAccordionItem key={faq.id} faq={faq} />
-              ))}
-            </div>
-
-            <div className="flex flex-col border-t border-gray-100 md:border-t-0 mt-2 md:mt-0 pt-2 md:pt-0">
-              {rightCol.map((faq) => (
-                <FaqAccordionItem key={faq.id} faq={faq} />
-              ))}
-            </div>
+        {/* Accordion Layout: Single column on mobile, 2 columns on desktop */}
+        <div className="grid grid-cols-1 md:grid-cols-2 md:gap-x-12">
+          {/* Left Column (or all items on mobile) */}
+          <div className="flex flex-col">
+            {leftCol.map((faq) => (
+              <FaqAccordionItem
+                key={faq.id}
+                faq={faq}
+                isOpen={openId === faq.id}
+                onToggle={() => toggle(faq.id)}
+              />
+            ))}
           </div>
+
+          {/* Right Column (on desktop) */}
+          {rightCol.length > 0 && (
+            <div className="flex flex-col border-t border-gray-100 md:border-t-0">
+              {rightCol.map((faq) => (
+                <FaqAccordionItem
+                  key={faq.id}
+                  faq={faq}
+                  isOpen={openId === faq.id}
+                  onToggle={() => toggle(faq.id)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </section>
