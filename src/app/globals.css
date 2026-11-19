@@ -1,26 +1,395 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+/*
+ * MelaMart Design System
+ * -------------------------------------------------------------
+ * Customer store: premium, editorial men's fashion.
+ *   - white / off-white backgrounds
+ *   - near-black typography
+ *   - neutral grey surfaces
+ *   - refined amber accent for sale / highlights
+ * Admin dashboard: premium SaaS.
+ *   - mint green outer canvas
+ *   - deep teal sidebar + panels
+ *   - white content cards
+ *   - glowing green accent
+ */
 
 :root {
+  /* Store semantic tokens (light) */
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #18181b;
+  --card: #ffffff;
+  --card-foreground: #18181b;
+  --popover: #ffffff;
+  --popover-foreground: #18181b;
+  --primary: #18181b;
+  --primary-foreground: #ffffff;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #6b7280;
+  --accent: #faf7f2;
+  --accent-foreground: #18181b;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #e7e7e9;
+  --input: #e7e7e9;
+  --ring: #18181b;
+  --radius: 0.75rem;
+
+  /* Brand */
+  --brand: #18181b;
+  --sale: #b45309;
+  --sale-foreground: #ffffff;
+
+  /* Admin palette */
+  --admin-canvas: #e0f2fe;
+  --admin-sidebar: #082f49;
+  --sidebar-foreground: #e0f2fe;
+  --admin-panel: #0c4a6e;
+  --admin-card: #ffffff;
+  --admin-card-foreground: #0c2a45;
+  --admin-muted: #f0f9ff;
+  --admin-border: #bae6fd;
+  --admin-accent: #0284c7;
+  --admin-accent-strong: #0369a1;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --color-sale: var(--sale);
+  --color-sale-foreground: var(--sale-foreground);
+
+  --color-admin-canvas: var(--admin-canvas);
+  --color-admin-sidebar: var(--admin-sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-admin-panel: var(--admin-panel);
+  --color-admin-card: var(--admin-card);
+  --color-admin-card-foreground: var(--admin-card-foreground);
+  --color-admin-muted: var(--admin-muted);
+  --color-admin-border: var(--admin-border);
+  --color-admin-accent: var(--admin-accent);
+  --color-admin-accent-strong: var(--admin-accent-strong);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-playfair), Georgia, serif;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  .font-serif {
+    font-family: var(--font-serif);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  /* Hide scrollbar but keep scroll (used by horizontal rails) */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .container-store {
+    width: 100%;
+    margin-inline: auto;
+    max-width: 80rem;
+    padding-inline: 1rem;
+  }
+  @media (min-width: 640px) {
+    .container-store {
+      padding-inline: 1.5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .container-store {
+      padding-inline: 2rem;
+    }
+  }
+  /* Glowing green used on admin accent elements */
+  .glow-accent {
+    box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.25),
+      0 8px 30px -12px rgba(16, 185, 129, 0.45);
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
 }
+
+/* Custom keyframes for subtle entrance animations */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+.animate-shimmer {
+  animation: shimmer 1.6s infinite;
+}
+
+@keyframes accordion-down {
+  from { height: 0; opacity: 0; }
+  to { height: var(--radix-accordion-content-height); opacity: 1; }
+}
+@keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); opacity: 1; }
+  to { height: 0; opacity: 0; }
+}
+.animate-accordion-down {
+  animation: accordion-down 0.25s ease-out;
+}
+.animate-accordion-up {
+  animation: accordion-up 0.2s ease-out;
+}
+
+/* ==========================================================================
+   Admin "liquid glass" theme (water: sky blue + white)
+   Translucent surfaces with blur, saturation boost and specular highlights,
+   floating over a clear-water gradient.
+   ========================================================================== */
+
+.admin-canvas {
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(700px 480px at 8% 6%, rgba(255, 255, 255, 0.95), transparent 62%),
+    radial-gradient(640px 520px at 88% 12%, rgba(165, 243, 252, 0.7), transparent 62%),
+    radial-gradient(820px 620px at 28% 92%, rgba(14, 165, 233, 0.85), transparent 62%),
+    radial-gradient(700px 600px at 96% 88%, rgba(37, 99, 235, 0.6), transparent 62%),
+    radial-gradient(520px 420px at 55% 45%, rgba(186, 230, 253, 0.85), transparent 65%),
+    linear-gradient(160deg, #e0f2fe 0%, #7dd3fc 42%, #38bdf8 72%, #0ea5e9 100%);
+}
+
+/* translucent inputs inside admin so fields read as glass too (unlayered: beats utilities) */
+.admin-canvas :where(input:not([type="checkbox"]):not([type="radio"]):not([type="color"]), textarea),
+.admin-canvas button[role="combobox"] {
+  background-color: rgba(255, 255, 255, 0.55);
+  border-color: rgba(255, 255, 255, 0.75);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+.admin-canvas :where(input, textarea):focus {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* moving light patterns, like sunlight refracting on a pool floor */
+.admin-caustics {
+  position: absolute;
+  inset: -20%;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.55;
+  mix-blend-mode: soft-light;
+  background:
+    radial-gradient(closest-side at 20% 30%, rgba(255, 255, 255, 0.9), transparent 70%),
+    radial-gradient(closest-side at 70% 20%, rgba(255, 255, 255, 0.7), transparent 70%),
+    radial-gradient(closest-side at 40% 75%, rgba(255, 255, 255, 0.8), transparent 70%),
+    radial-gradient(closest-side at 85% 65%, rgba(255, 255, 255, 0.6), transparent 70%);
+  background-size: 38% 34%, 30% 28%, 34% 32%, 26% 30%;
+  filter: blur(18px);
+  animation: admin-caustics 22s ease-in-out infinite alternate;
+}
+
+@keyframes admin-caustics {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(3%, -2%, 0) scale(1.06); }
+  100% { transform: translate3d(-2%, 3%, 0) scale(1.02); }
+}
+
+/* layered waves along the bottom edge */
+.admin-waves {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 38vh;
+  z-index: -1;
+  pointer-events: none;
+}
+.admin-waves path { animation: admin-wave 14s ease-in-out infinite alternate; }
+.admin-waves path:nth-child(2) { animation-duration: 18s; animation-direction: alternate-reverse; }
+.admin-waves path:nth-child(3) { animation-duration: 24s; }
+
+@keyframes admin-wave {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-4%); }
+}
+
+.admin-float { animation: admin-float 18s ease-in-out infinite alternate; }
+.admin-float-slow { animation: admin-float 26s ease-in-out infinite alternate-reverse; }
+@keyframes admin-float {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(4vw, -3vh, 0) scale(1.12); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-caustics, .admin-waves path, .admin-float, .admin-float-slow { animation: none; }
+}
+
+/* soft floating colour orbs behind the glass (decorative) */
+.admin-orb {
+  position: absolute;
+  z-index: -1;
+  border-radius: 9999px;
+  filter: blur(70px);
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.glass,
+.glass-strong,
+.glass-dialog {
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  backdrop-filter: blur(28px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    inset 1.5px 1.5px 0 rgba(255, 255, 255, 0.9),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 0 20px rgba(255, 255, 255, 0.12),
+    0 10px 36px -10px rgba(2, 62, 109, 0.28);
+}
+
+/* cards: mostly see-through, with a specular highlight in the top-left */
+.glass {
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 45%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.08));
+}
+
+/* data-heavy surfaces (tables, forms): still translucent, a bit denser for legibility */
+.glass-strong {
+  background:
+    radial-gradient(120% 70% at 0% 0%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 45%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.52), rgba(255, 255, 255, 0.32));
+}
+
+.glass-dialog {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(240, 249, 255, 0.9));
+  -webkit-backdrop-filter: blur(36px) saturate(190%);
+  backdrop-filter: blur(36px) saturate(190%);
+}
+
+/* glossy water-blue call-to-action */
+.btn-glass {
+  background: linear-gradient(180deg, #0ea5e9 0%, #0369a1 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 8px 20px -8px rgba(3, 105, 161, 0.7);
+}
+.btn-glass:hover {
+  background: linear-gradient(180deg, #0284c7 0%, #075985 100%);
+  color: #ffffff;
+}
+
+/* pill used for the active nav item / segmented controls (frosted glass bubble) */
+.glass-pill-active {
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.45) 100%);
+  color: #075985;
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 1),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.35),
+    0 6px 16px -6px rgba(3, 105, 161, 0.45);
+}
+
+/*
+ * iOS-style "clear" liquid glass: almost fully transparent, strong blur and
+ * saturation, bright rim light and a specular highlight. Used for the sidebar.
+ */
+.glass-clear {
+  background:
+    radial-gradient(120% 60% at 0% 0%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 45%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.04) 100%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%) brightness(1.05);
+  backdrop-filter: blur(22px) saturate(150%) brightness(1.05);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow:
+    inset 1.5px 1.5px 0 rgba(255, 255, 255, 0.95),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 0 22px rgba(255, 255, 255, 0.22),
+    0 20px 40px -18px rgba(3, 105, 161, 0.45);
+}
+
+/* round glass button inside clear glass (e.g. sidebar icons on hover) */
+.glass-icon:hover {
+  background: rgba(255, 255, 255, 0.35);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.9), inset -1px -1px 0 rgba(255, 255, 255, 0.25);
+}
+
+/* browsers without backdrop-filter get an opaque, still-readable surface */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-clear { background: rgba(240, 249, 255, 0.85); }
+  .glass { background: rgba(240, 249, 255, 0.9); }
+  .glass-strong { background: rgba(255, 255, 255, 0.95); }
+  .glass-dialog { background: rgba(255, 255, 255, 0.98); }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass-clear { background: rgba(240, 249, 255, 0.95); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .glass { background: rgba(240, 249, 255, 0.95); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .glass-strong { background: rgba(255, 255, 255, 0.97); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+
+/* Size-selector nudge when a shopper taps Buy without choosing a size */
+@keyframes ff-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  [class*="ff-shake"] { animation: none !important; }
+}
+
+/* Phones: space for the sticky buy bar on product/combo pages */
+@media (max-width: 767px) {
+  body.has-buy-bar { padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
+}
+
+/* Phones: space for the app-style bottom navigation */
+@media (max-width: 767px) {
+  body.has-bottom-nav { padding-bottom: calc(56px + env(safe-area-inset-bottom)); }
+}
+
+/* Hide scrollbar utility (used in horizontal review carousel) */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
