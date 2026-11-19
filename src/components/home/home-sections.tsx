@@ -33,7 +33,7 @@ export function RenderSection({ section: s, data: d, preview = false }: { sectio
   switch (s.type) {
     case "hero":
       return (
-        <section aria-label="Featured" className="px-3 pt-3 sm:px-4 sm:pt-4 md:px-6 md:pt-5 lg:px-10 lg:pt-6 xl:px-16">
+        <section aria-label="Featured" className="px-2 pt-2 sm:px-4 sm:pt-4 md:px-6 md:pt-5 lg:px-10 lg:pt-6 xl:px-16">
           {/* max-w-6xl keeps the banner contained on ultra-wide screens — Floriwish style */}
           <div className="mx-auto w-full max-w-6xl">
             <HeroCarousel banners={d.banners} autoplaySeconds={s.autoplaySeconds} height={s.height} mobileAspect={s.mobileAspect} fallback={{ highlights: d.heroHighlights }} preview={preview} />
