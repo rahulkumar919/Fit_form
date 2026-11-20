@@ -69,6 +69,13 @@ export async function POST(req: NextRequest) {
     });
   } catch (err) {
     if (err instanceof ImageValidationError) return badRequest(err.message);
-    return serverError(err);
+    const msg =
+      err instanceof Error
+        ? err.message
+        : typeof err === "object" && err !== null && "message" in err
+          ? String((err as { message: unknown }).message)
+          : "Image upload failed";
+    console.error("[Media upload error]:", err);
+    return serverError(new Error(msg));
   }
 }

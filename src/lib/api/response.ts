@@ -34,7 +34,14 @@ export function conflict(message: string) {
 }
 
 export function serverError(err: unknown) {
-  const message = err instanceof Error ? err.message : "Internal server error";
+  const message =
+    err instanceof Error
+      ? err.message
+      : typeof err === "object" && err !== null && "message" in err
+        ? String((err as { message: unknown }).message)
+        : typeof err === "string"
+          ? err
+          : "Internal server error";
   console.error("[API error]", err);
   return NextResponse.json({ success: false, message }, { status: 500 });
 }

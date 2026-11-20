@@ -40,9 +40,9 @@ export const STORAGE_DIR = /* evaluated lazily via getter */ (() => {
 })();
 
 export function cloudinaryConfigured(): boolean {
-  const n = process.env.CLOUDINARY_CLOUD_NAME ?? "";
-  const k = process.env.CLOUDINARY_API_KEY ?? "";
-  const s = process.env.CLOUDINARY_API_SECRET ?? "";
+  const n = (process.env.CLOUDINARY_CLOUD_NAME ?? "").trim().replace(/^["']|["']$/g, "");
+  const k = (process.env.CLOUDINARY_API_KEY ?? "").trim().replace(/^["']|["']$/g, "");
+  const s = (process.env.CLOUDINARY_API_SECRET ?? "").trim().replace(/^["']|["']$/g, "");
   return !!n && !!k && !!s && !/^your-/.test(n) && !/^your-/.test(k) && !/^your-/.test(s);
 }
 
@@ -88,10 +88,14 @@ async function deleteFromServer(key: string) {
 
 async function cloudinary() {
   const { v2 } = await import("cloudinary");
+  const cloud_name = (process.env.CLOUDINARY_CLOUD_NAME ?? "").trim().replace(/^["']|["']$/g, "");
+  const api_key = (process.env.CLOUDINARY_API_KEY ?? "").trim().replace(/^["']|["']$/g, "");
+  const api_secret = (process.env.CLOUDINARY_API_SECRET ?? "").trim().replace(/^["']|["']$/g, "");
+
   v2.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
+    cloud_name,
+    api_key,
+    api_secret,
     secure: true,
   });
   return v2;
@@ -101,17 +105,29 @@ async function saveToCloudinary(img: ProcessedImage): Promise<StoredImage> {
   const { randomUUID } = await import("node:crypto");
   const cld = await cloudinary();
   const id = randomUUID().replace(/-/g, "").slice(0, 16);
-  const renditions: StoredRendition[] = [];
-  for (const r of img.renditions) {
-    const res = await new Promise<{ secure_url: string; width: number; height: number; bytes: number }>((resolve, reject) => {
+
+  // Upload large, medium, and thumb in parallel
+  const uploads = img.renditions.map((r) => {
+    return new Promise<StoredRendition>((resolve, reject) => {
       cld.uploader
-        .upload_stream({ folder: "melamart", public_id: `${id}-${r.name}`, resource_type: "image", overwrite: false }, (err, out) =>
-          err || !out ? reject(err ?? new Error("Cloudinary upload failed")) : resolve(out as never),
+        .upload_stream(
+          { folder: "melamart", public_id: `${id}-${r.name}`, resource_type: "image", overwrite: false },
+          (err, out) => {
+            if (err || !out) {
+              const msg = (err as { message?: string })?.message || "Cloudinary upload failed";
+              const code = (err as { http_code?: number })?.http_code;
+              reject(new Error(`Cloudinary upload failed${code ? ` [HTTP ${code}]` : ""}: ${msg}`));
+            } else {
+              const res = out as { secure_url: string; width: number; height: number; bytes: number };
+              resolve({ name: r.name, url: res.secure_url, width: res.width, height: res.height, bytes: res.bytes });
+            }
+          },
         )
         .end(r.buffer);
     });
-    renditions.push({ name: r.name, url: res.secure_url, width: res.width, height: res.height, bytes: res.bytes });
-  }
+  });
+
+  const renditions = await Promise.all(uploads);
   return { provider: "cloudinary", key: `melamart/${id}`, url: renditions[0].url, renditions };
 }
 
