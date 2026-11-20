@@ -248,7 +248,8 @@ export function ProductReviewsSection({ productId, initialReviews, summary }: Pr
   const [loading, setLoading] = React.useState(false);
   const [helpfulVoted, setHelpfulVoted] = React.useState<Set<string>>(new Set());
   const [showModal, setShowModal] = React.useState(false);
-  const [mobileExpanded, setMobileExpanded] = React.useState(false);
+  // Mobile: always starts collapsed — shows first 3 reviews only
+  const [showAllMobile, setShowAllMobile] = React.useState(false);
 
   const scrollRef = React.useRef<HTMLDivElement>(null);
 
@@ -421,10 +422,11 @@ export function ProductReviewsSection({ productId, initialReviews, summary }: Pr
           <p className="p-6 text-center text-sm text-gray-400">No reviews match your filter.</p>
         ) : (
           <>
-            {/* ── Mobile: show 3 reviews, then "See all" button ── */}
+            {/* ── Mobile: 3 reviews + "See more" bottom sheet ── */}
             <div className="block md:hidden">
-              <div className="px-5 divide-y divide-gray-100">
-                {(mobileExpanded ? reviews : reviews.slice(0, 3)).map((r) => (
+              {/* Always show exactly 3 reviews */}
+              <div className="divide-y divide-gray-100 px-5">
+                {reviews.slice(0, 3).map((r) => (
                   <ReviewCard
                     key={r.id}
                     review={r}
@@ -434,44 +436,78 @@ export function ProductReviewsSection({ productId, initialReviews, summary }: Pr
                 ))}
               </div>
 
-              {/* See all / collapse button */}
-              {reviews.length > 3 && (
-                <div className="px-5 pb-4 pt-2">
+              {/* See more button — only if more than 3 exist */}
+              {summary.count > 3 && (
+                <div className="px-5 pb-5 pt-3">
                   <button
                     type="button"
-                    onClick={() => setMobileExpanded((v) => !v)}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 active:scale-[0.98]"
+                    onClick={() => setShowAllMobile(true)}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white py-3 text-sm font-semibold text-gray-800 shadow-sm transition hover:bg-gray-50 active:scale-[0.98]"
                   >
-                    {mobileExpanded ? (
-                      <>
-                        <ChevronLeft className="size-4 rotate-90" />
-                        Show less
-                      </>
-                    ) : (
-                      <>
-                        See all {summary.count} reviews
-                        <ChevronRight className="size-4 rotate-90" />
-                      </>
-                    )}
+                    See all {summary.count} reviews
+                    <ChevronRight className="size-4 rotate-90" />
                   </button>
                 </div>
               )}
-
-              {/* Load more (only when expanded and there are more from API) */}
-              {mobileExpanded && hasMore && (
-                <div className="px-5 pb-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={loading}
-                    onClick={loadMore}
-                    className="w-full gap-1.5 rounded-full text-xs"
-                  >
-                    {loading ? <Loader2 className="size-4 animate-spin" /> : "Load more reviews"}
-                  </Button>
-                </div>
-              )}
             </div>
+
+            {/* ── Mobile bottom sheet: all reviews ── */}
+            {showAllMobile && (
+              <div className="fixed inset-0 z-50 flex flex-col md:hidden">
+                {/* Backdrop */}
+                <div
+                  className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                  onClick={() => setShowAllMobile(false)}
+                />
+                {/* Sheet — slides up from bottom */}
+                <div className="relative mt-auto flex max-h-[85dvh] flex-col rounded-t-3xl bg-white shadow-2xl">
+                  {/* Handle + header */}
+                  <div className="flex shrink-0 items-center justify-between border-b border-gray-100 px-5 py-4">
+                    <div>
+                      <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-gray-300" />
+                      <h3 className="text-base font-bold text-gray-900">
+                        All Reviews
+                        <span className="ml-1.5 text-sm font-normal text-gray-400">({summary.count})</span>
+                      </h3>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowAllMobile(false)}
+                      className="rounded-full p-1.5 text-gray-400 hover:bg-gray-100"
+                      aria-label="Close"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  {/* Scrollable review list */}
+                  <div className="flex-1 overflow-y-auto divide-y divide-gray-100 px-5">
+                    {reviews.map((r) => (
+                      <ReviewCard
+                        key={r.id}
+                        review={r}
+                        onHelpful={handleHelpful}
+                        voted={helpfulVoted.has(r.id)}
+                      />
+                    ))}
+                    {/* Load more inside sheet */}
+                    {hasMore && (
+                      <div className="py-4">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={loading}
+                          onClick={loadMore}
+                          className="w-full gap-1.5 rounded-full text-xs"
+                        >
+                          {loading ? <Loader2 className="size-4 animate-spin" /> : "Load more reviews"}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* ── Desktop: horizontal scroll cards ── */}
             <div className="relative hidden md:block px-6 py-5">
