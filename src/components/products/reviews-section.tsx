@@ -343,7 +343,7 @@ export function ProductReviewsSection({ productId, initialReviews, summary }: Pr
   const breakdownDesc = [...summary.breakdown].sort((a, b) => b.star - a.star);
 
   return (
-    <div className="mt-6 rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+    <div className="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden lg:rounded-none lg:border-0 lg:shadow-none lg:bg-transparent">
 
       {/* ══ HEADER ══ */}
       <div className="flex items-center justify-between px-5 pt-5 pb-4 sm:px-6">

@@ -102,23 +102,50 @@ export default async function ProductPage({ params }: Props) {
         ]))
       }} />
       <TrackView type="product_view" refId={product.id} value={product.price} />
+      {/* Product details (always shown — has its own internal lg:grid for image+info) */}
       <ProductDetails product={{ ...product, rating: summary.average, reviewCount: summary.count }} info={info} />
 
+      {/* ── Reviews: desktop = sticky right panel alongside product, mobile = section below ── */}
+      {/* Desktop sticky panel (lg+): floated alongside the product image via absolute positioning trick */}
       <section id="reviews" className="scroll-mt-24 border-t border-border bg-muted/30 py-8 sm:py-10">
         <div className="container-store">
-          <h2 className="font-serif text-xl font-bold tracking-tight sm:text-2xl">
-            Ratings &amp; Reviews
-            {summary.count > 0 && (
-              <span className="ml-2 text-sm font-normal text-muted-foreground">
-                {summary.count} review{summary.count === 1 ? "" : "s"}
-              </span>
-            )}
-          </h2>
-          <ProductReviewsSection
-            productId={product.id}
-            initialReviews={reviews}
-            summary={summary}
-          />
+          <div className="grid gap-8 lg:grid-cols-[1fr_420px] xl:grid-cols-[1fr_460px]">
+            {/* Left: heading + empty on desktop (product image is above) */}
+            <div className="hidden lg:block">
+              <h2 className="font-serif text-xl font-bold tracking-tight sm:text-2xl">
+                Ratings &amp; Reviews
+                {summary.count > 0 && (
+                  <span className="ml-2 text-sm font-normal text-muted-foreground">
+                    {summary.count} review{summary.count === 1 ? "" : "s"}
+                  </span>
+                )}
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Scroll the panel on the right to read customer reviews.
+              </p>
+            </div>
+
+            {/* Right (desktop) / Full width (mobile): Reviews panel */}
+            <div className="lg:sticky lg:top-24 lg:self-start">
+              {/* Mobile heading */}
+              <h2 className="mb-4 font-serif text-xl font-bold tracking-tight lg:hidden">
+                Ratings &amp; Reviews
+                {summary.count > 0 && (
+                  <span className="ml-2 text-sm font-normal text-muted-foreground">
+                    {summary.count} review{summary.count === 1 ? "" : "s"}
+                  </span>
+                )}
+              </h2>
+              {/* Scrollable on desktop, natural on mobile */}
+              <div className="lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto lg:rounded-2xl lg:border lg:border-gray-200 lg:bg-white lg:shadow-sm">
+                <ProductReviewsSection
+                  productId={product.id}
+                  initialReviews={reviews}
+                  summary={summary}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
