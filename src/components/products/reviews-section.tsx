@@ -248,6 +248,7 @@ export function ProductReviewsSection({ productId, initialReviews, summary }: Pr
   const [loading, setLoading] = React.useState(false);
   const [helpfulVoted, setHelpfulVoted] = React.useState<Set<string>>(new Set());
   const [showModal, setShowModal] = React.useState(false);
+  const [mobileExpanded, setMobileExpanded] = React.useState(false);
 
   const scrollRef = React.useRef<HTMLDivElement>(null);
 
@@ -343,7 +344,7 @@ export function ProductReviewsSection({ productId, initialReviews, summary }: Pr
   const breakdownDesc = [...summary.breakdown].sort((a, b) => b.star - a.star);
 
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden lg:rounded-none lg:border-0 lg:shadow-none lg:bg-transparent">
+    <div className="mt-6 rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
 
       {/* ══ HEADER ══ */}
       <div className="flex items-center justify-between px-5 pt-5 pb-4 sm:px-6">
@@ -420,19 +421,45 @@ export function ProductReviewsSection({ productId, initialReviews, summary }: Pr
           <p className="p-6 text-center text-sm text-gray-400">No reviews match your filter.</p>
         ) : (
           <>
-            {/* ── Mobile: vertical stacked list — page scrolls naturally ── */}
-            <div className="block md:hidden px-5 divide-y divide-gray-100">
-              {reviews.map((r) => (
-                <ReviewCard
-                  key={r.id}
-                  review={r}
-                  onHelpful={handleHelpful}
-                  voted={helpfulVoted.has(r.id)}
-                />
-              ))}
-              {/* Load more */}
-              {hasMore && (
-                <div className="py-4 flex justify-center">
+            {/* ── Mobile: show 3 reviews, then "See all" button ── */}
+            <div className="block md:hidden">
+              <div className="px-5 divide-y divide-gray-100">
+                {(mobileExpanded ? reviews : reviews.slice(0, 3)).map((r) => (
+                  <ReviewCard
+                    key={r.id}
+                    review={r}
+                    onHelpful={handleHelpful}
+                    voted={helpfulVoted.has(r.id)}
+                  />
+                ))}
+              </div>
+
+              {/* See all / collapse button */}
+              {reviews.length > 3 && (
+                <div className="px-5 pb-4 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setMobileExpanded((v) => !v)}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 active:scale-[0.98]"
+                  >
+                    {mobileExpanded ? (
+                      <>
+                        <ChevronLeft className="size-4 rotate-90" />
+                        Show less
+                      </>
+                    ) : (
+                      <>
+                        See all {summary.count} reviews
+                        <ChevronRight className="size-4 rotate-90" />
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {/* Load more (only when expanded and there are more from API) */}
+              {mobileExpanded && hasMore && (
+                <div className="px-5 pb-4">
                   <Button
                     variant="outline"
                     size="sm"
