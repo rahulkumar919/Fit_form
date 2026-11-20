@@ -27,8 +27,10 @@ import Image from "next/image";
 import {
   BadgeCheck,
   Camera,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
   Loader2,
   MapPin,
   MessageSquare,
@@ -248,8 +250,8 @@ export function ProductReviewsSection({ productId, initialReviews, summary }: Pr
   const [loading, setLoading] = React.useState(false);
   const [helpfulVoted, setHelpfulVoted] = React.useState<Set<string>>(new Set());
   const [showModal, setShowModal] = React.useState(false);
-  // Mobile: always starts collapsed — shows first 3 reviews only
-  const [showAllMobile, setShowAllMobile] = React.useState(false);
+  // Mobile: start with only 3 reviews visible. Tap "See more reviews" to expand.
+  const [isExpanded, setIsExpanded] = React.useState(false);
 
   const scrollRef = React.useRef<HTMLDivElement>(null);
 
@@ -422,11 +424,10 @@ export function ProductReviewsSection({ productId, initialReviews, summary }: Pr
           <p className="p-6 text-center text-sm text-gray-400">No reviews match your filter.</p>
         ) : (
           <>
-            {/* ── Mobile: 3 reviews + "See more" bottom sheet ── */}
+            {/* ── Mobile: 3 reviews initially + "See more reviews" inline button ── */}
             <div className="block md:hidden">
-              {/* Always show exactly 3 reviews */}
               <div className="divide-y divide-gray-100 px-5">
-                {reviews.slice(0, 3).map((r) => (
+                {(isExpanded ? reviews : reviews.slice(0, 3)).map((r) => (
                   <ReviewCard
                     key={r.id}
                     review={r}
@@ -436,78 +437,51 @@ export function ProductReviewsSection({ productId, initialReviews, summary }: Pr
                 ))}
               </div>
 
-              {/* See more button — only if more than 3 exist */}
-              {summary.count > 3 && (
+              {/* When NOT expanded and there are more than 3 reviews */}
+              {!isExpanded && (reviews.length > 3 || (summary?.count || 0) > 3) && (
                 <div className="px-5 pb-5 pt-3">
                   <button
                     type="button"
-                    onClick={() => setShowAllMobile(true)}
+                    onClick={() => setIsExpanded(true)}
                     className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white py-3 text-sm font-semibold text-gray-800 shadow-sm transition hover:bg-gray-50 active:scale-[0.98]"
                   >
-                    See all {summary.count} reviews
-                    <ChevronRight className="size-4 rotate-90" />
+                    <span>See more reviews</span>
+                    <span className="text-xs font-normal text-gray-500">
+                      ({reviews.length} reviews)
+                    </span>
+                    <ChevronDown className="size-4 text-gray-500" />
+                  </button>
+                </div>
+              )}
+
+              {/* When expanded: show "Load more" (if hasMore) and "Show less" */}
+              {isExpanded && (
+                <div className="space-y-2 px-5 pb-5 pt-3">
+                  {hasMore && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={loading}
+                      onClick={loadMore}
+                      className="w-full gap-1.5 rounded-xl text-xs py-3 h-auto font-medium"
+                    >
+                      {loading ? <Loader2 className="size-4 animate-spin" /> : "Load more reviews"}
+                    </Button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsExpanded(false);
+                      document.getElementById("reviews")?.scrollIntoView({ behavior: "smooth" });
+                    }}
+                    className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-gray-50 py-2.5 text-xs font-medium text-gray-600 hover:bg-gray-100"
+                  >
+                    <ChevronUp className="size-4 text-gray-500" />
+                    Show less
                   </button>
                 </div>
               )}
             </div>
-
-            {/* ── Mobile bottom sheet: all reviews ── */}
-            {showAllMobile && (
-              <div className="fixed inset-0 z-50 flex flex-col md:hidden">
-                {/* Backdrop */}
-                <div
-                  className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-                  onClick={() => setShowAllMobile(false)}
-                />
-                {/* Sheet — slides up from bottom */}
-                <div className="relative mt-auto flex max-h-[85dvh] flex-col rounded-t-3xl bg-white shadow-2xl">
-                  {/* Handle + header */}
-                  <div className="flex shrink-0 items-center justify-between border-b border-gray-100 px-5 py-4">
-                    <div>
-                      <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-gray-300" />
-                      <h3 className="text-base font-bold text-gray-900">
-                        All Reviews
-                        <span className="ml-1.5 text-sm font-normal text-gray-400">({summary.count})</span>
-                      </h3>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setShowAllMobile(false)}
-                      className="rounded-full p-1.5 text-gray-400 hover:bg-gray-100"
-                      aria-label="Close"
-                    >
-                      ✕
-                    </button>
-                  </div>
-
-                  {/* Scrollable review list */}
-                  <div className="flex-1 overflow-y-auto divide-y divide-gray-100 px-5">
-                    {reviews.map((r) => (
-                      <ReviewCard
-                        key={r.id}
-                        review={r}
-                        onHelpful={handleHelpful}
-                        voted={helpfulVoted.has(r.id)}
-                      />
-                    ))}
-                    {/* Load more inside sheet */}
-                    {hasMore && (
-                      <div className="py-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={loading}
-                          onClick={loadMore}
-                          className="w-full gap-1.5 rounded-full text-xs"
-                        >
-                          {loading ? <Loader2 className="size-4 animate-spin" /> : "Load more reviews"}
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* ── Desktop: horizontal scroll cards ── */}
             <div className="relative hidden md:block px-6 py-5">
