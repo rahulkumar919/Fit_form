@@ -133,7 +133,7 @@ function ReviewCard({
               {review.author}
             </span>
             {(review.verified || review.source === "store_testimonial") && (
-              <BadgeCheck className="size-3.5 shrink-0 text-blue-500" />
+              <BadgeCheck className="size-4 shrink-0 text-blue-500" />
             )}
             {review.source === "store_testimonial" && (
               <span className="flex items-center gap-0.5 text-[10px] text-sky-600 font-medium">
@@ -420,8 +420,8 @@ export function ProductReviewsSection({ productId, initialReviews, summary }: Pr
           <p className="p-6 text-center text-sm text-gray-400">No reviews match your filter.</p>
         ) : (
           <>
-            {/* ── Mobile: vertical stacked list (scrollable container) ── */}
-            <div className="block md:hidden px-5 max-h-[520px] overflow-y-auto divide-y divide-gray-100 scroll-smooth">
+            {/* ── Mobile: vertical stacked list — page scrolls naturally ── */}
+            <div className="block md:hidden px-5 divide-y divide-gray-100">
               {reviews.map((r) => (
                 <ReviewCard
                   key={r.id}
@@ -430,7 +430,7 @@ export function ProductReviewsSection({ productId, initialReviews, summary }: Pr
                   voted={helpfulVoted.has(r.id)}
                 />
               ))}
-              {/* Load more at bottom of scroll */}
+              {/* Load more */}
               {hasMore && (
                 <div className="py-4 flex justify-center">
                   <Button
@@ -557,7 +557,7 @@ function DesktopReviewCard({
             <div className="flex items-center gap-1">
               <p className="truncate text-sm font-semibold leading-tight">{review.author}</p>
               {(review.verified || review.source === "store_testimonial") && (
-                <BadgeCheck className="size-3.5 shrink-0 text-blue-500" />
+                <BadgeCheck className="size-4 shrink-0 text-blue-500" />
               )}
             </div>
             <p className="text-[11px] text-gray-400 leading-tight mt-0.5">
