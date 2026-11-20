@@ -129,7 +129,8 @@ export function HeroCarousel({
    * never cropped. We still apply overflow-hidden + rounded corners.
    */
   const frameClsWith    = cn("relative w-full overflow-hidden rounded-2xl md:rounded-3xl bg-neutral-100 shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-black/[0.04]", phoneCls, desktopCls);
-  const frameClsWithout = cn("relative w-full overflow-hidden rounded-2xl md:rounded-3xl bg-neutral-100 shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-black/[0.04]", phoneCls, desktopCls);
+  // No phoneCls on mobile — desktop-only image drives its own height so it's never cropped sideways
+  const frameClsWithout = cn("relative w-full overflow-hidden rounded-2xl md:rounded-3xl bg-neutral-100 shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-black/[0.04]", desktopCls);
 
   if (count === 0) {
     return (
@@ -297,10 +298,12 @@ function Slide({
       />
     </picture>
   ) : (
+    // No dedicated mobile image — on mobile: full width, natural height (no side crop)
+    // On desktop (md+): absolute fill with object-cover to fill the fixed aspect-ratio frame
     <img
       src={b.image}
       alt={hasText ? "" : alt}
-      className="absolute inset-0 h-full w-full object-cover object-center"
+      className="relative block w-full h-auto md:absolute md:inset-0 md:h-full md:w-full md:object-cover md:object-center"
       loading={eager ? "eager" : "lazy"}
       decoding="async"
       fetchPriority={eager ? "high" : "auto"}
