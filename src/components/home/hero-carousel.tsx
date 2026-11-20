@@ -26,8 +26,8 @@ export const BANNER_SIZE_HINT: Record<Height, string> = {
 
 /* ─── Mobile aspect-ratio Tailwind classes (Engineered for high conversion & visual engagement) ─── */
 const MOBILE_ASPECT_CLASS: Record<MobileAspect, string> = {
-  "16/7": "aspect-[16/8.5]",
-  "16/9": "aspect-[16/9]",
+  "16/7": "aspect-[16/7]",
+  "16/9": "aspect-[16/7]",   // mapped to Floriwish-style compact ratio
   "4/3":  "aspect-[4/3]",
   "1/1":  "aspect-square",
   "4/5":  "aspect-[4/5]",
