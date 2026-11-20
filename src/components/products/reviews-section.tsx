@@ -420,8 +420,8 @@ export function ProductReviewsSection({ productId, initialReviews, summary }: Pr
           <p className="p-6 text-center text-sm text-gray-400">No reviews match your filter.</p>
         ) : (
           <>
-            {/* ── Mobile: vertical stacked list ── */}
-            <div className="block md:hidden px-5 divide-y divide-gray-100">
+            {/* ── Mobile: vertical stacked list (scrollable container) ── */}
+            <div className="block md:hidden px-5 max-h-[520px] overflow-y-auto divide-y divide-gray-100 scroll-smooth">
               {reviews.map((r) => (
                 <ReviewCard
                   key={r.id}
@@ -430,6 +430,20 @@ export function ProductReviewsSection({ productId, initialReviews, summary }: Pr
                   voted={helpfulVoted.has(r.id)}
                 />
               ))}
+              {/* Load more at bottom of scroll */}
+              {hasMore && (
+                <div className="py-4 flex justify-center">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={loading}
+                    onClick={loadMore}
+                    className="w-full gap-1.5 rounded-full text-xs"
+                  >
+                    {loading ? <Loader2 className="size-4 animate-spin" /> : "Load more reviews"}
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* ── Desktop: horizontal scroll cards ── */}
@@ -493,20 +507,7 @@ export function ProductReviewsSection({ productId, initialReviews, summary }: Pr
               </button>
             </div>
 
-            {/* Mobile load more */}
-            {hasMore && (
-              <div className="block md:hidden px-5 pb-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={loading}
-                  onClick={loadMore}
-                  className="w-full gap-1.5 rounded-full text-xs"
-                >
-                  {loading ? <Loader2 className="size-4 animate-spin" /> : "Load more reviews"}
-                </Button>
-              </div>
-            )}
+
           </>
         )}
       </div>
